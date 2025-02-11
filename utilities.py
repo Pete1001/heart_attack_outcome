@@ -1,5 +1,5 @@
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler, OrdinalEncoder, LabelEncoder
+from sklearn.preprocessing import StandardScaler, OrdinalEncoder, LabelEncoder, OneHotEncoder
 import pandas as pd
 import numpy as np
 import tensorflow as tf
@@ -31,9 +31,8 @@ def splitData(df, target_column):
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
     return X_train, X_test, y_train, y_test
 
-def scaleData(X_train, X_test):
+def scaleData(X_train, X_test, numerical_columns):
     scaler = StandardScaler()
-    numerical_columns = X_train.select_dtypes(include=[np.number]).columns.tolist()
     scaler.fit(X_train[numerical_columns])
     X_train[numerical_columns] = scaler.transform(X_train[numerical_columns])
     X_test[numerical_columns] = scaler.transform(X_test[numerical_columns])
@@ -61,37 +60,33 @@ def get_feature_importance(model, X_test, y_test):
         print(f"{i['feature']} : {i['importance']}")
     return importances
 
-def encodeOrdinal(X_train, X_test, ordinal_data, ordinal_categories):
+def encodeOrdinal(df, ordinal_data, ordinal_categories):
     for i in range(len(ordinal_data)):
         encoder = OrdinalEncoder(categories=[ordinal_categories[i]])
-        X_train[ordinal_data[i]] = encoder.fit_transform(X_train[[ordinal_data[i]]])
-        X_test[ordinal_data[i]] = encoder.transform(X_test[[ordinal_data[i]]])
-    return X_train, X_test
+        df[ordinal_data[i]] = encoder.fit_transform(df[[ordinal_data[i]]])
+    return df
 
-def encodeBinary(X_train, X_test, binary_data):
+def encodeBinary(df, binary_data):
     # Label encode Binary_Data:
     label_encoder = LabelEncoder()
     for col in binary_data:
-        X_train[col] = label_encoder.fit_transform(X_train[col])
-        X_test[col] = label_encoder.transform(X_test[col])
-    return X_train, X_test, label_encoder
+        df[col] = label_encoder.fit_transform(df[col])
+    return df, label_encoder
 
-def encodeNominal(X_train, X_test, nominal_data):
+def encodeNominal(df, nominal_data):
     if len(nominal_data) == 0:
-        return X_train, X_test
-    X_train= pd.get_dummies(X_train, columns= nominal_data, drop_first=True)
-    X_test= pd.get_dummies(X_test, columns= nominal_data, drop_first=True)
-    return X_train, X_test
+        return df
+    df= pd.get_dummies(df, columns= nominal_data, drop_first=True)
+    return df
 
 def cleanData(df, target_column, binary_data = [], ordinal_data = [], nominal_data = [], ordinal_categories = []):
     print('Cleaning Data...')
-    #numerical_columns = df.select_dtypes(include=[np.number]).columns.tolist()
+    numerical_columns = df.select_dtypes(include=[np.number]).drop(columns = target_column).columns.tolist()
+    df = encodeOrdinal(df, ordinal_data, ordinal_categories)
+    df, LabelEncoder = encodeBinary(df, binary_data)
+    df = encodeNominal(df, nominal_data)
     X_train, X_test, y_train, y_test = splitData(df, target_column)
-    scaler, X_train_scaled, X_test_scaled = scaleData(X_train,X_test)
-    X_train, X_test = encodeOrdinal(X_train, X_test, ordinal_data, ordinal_categories)
-    X_train, X_test, LabelEncoder = encodeBinary(X_train, X_test, binary_data)
-    X_train, X_test = encodeNominal(X_train, X_test, nominal_data)
-    #scaler, X_train_scaled, X_test_scaled = scaleData(X_train,X_test)
+    scaler, X_train_scaled, X_test_scaled = scaleData(X_train,X_test, numerical_columns)
     return scaler, X_train_scaled, X_test_scaled, y_train, y_test, LabelEncoder
 
 def makePrediction(x, nn_model, scaler, numerical_columns):
