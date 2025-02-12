@@ -42,8 +42,8 @@ Mortality from heart attack dataset location: https://www.kaggle.com/datasets/as
     - Create two Neural Network Models using Keras and TensorFlow to predict heart attack risk and outcome   
     - Create a utilities.py to efficiently call functions   
     - Important features were identified in order to create meaningful user questionnaires   
-    
-The project follows the following structure:   
+
+## FILE STRUCTURE: 
 
 Code language: Python (python)   
 Project2_Bank_Customer_Churn/   
