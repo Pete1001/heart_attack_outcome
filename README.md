@@ -53,11 +53,11 @@ Project2_Bank_Customer_Churn/
 ├─utilities.py        
 ├─README.md   
 └─Resources/   
-  -FIC.Full CSV.csv      
-  -MyocardioMinds.png   
-  -StAlgorithmsCardiacInstitute.png   
-  -heart_attack_model.h5   
-  -heart_disease_health_indicators_BRFSS2015.csv   
+     -FIC.Full CSV.csv      
+     -MyocardioMinds.png   
+     -StAlgorithmsCardiacInstitute.png   
+     -heart_attack_model.h5   
+     -heart_disease_health_indicators_BRFSS2015.csv   
 
 ## PROBLEMS ENCOUNTERED:   
 -Our first attempt to develop and train an app, that predicts a heart attack outcome, we used sourced data https://www.kaggle.com/datasets/ankushpanday1/heart-attack-risk-predictions (heart_attack_predictions.csv).   
